@@ -89,8 +89,15 @@ runs:
         remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
         ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new)
 
-        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"
-        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"
+        for attempt in $(seq 1 5); do
+          if scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"             && scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"; then
+            exit 0
+          fi
+          sleep 3
+        done
+
+        echo "Unable to upload infra payload to ${DEPLOY_VM_HOST}:${DEPLOY_VM_PORT:-22}" >&2
+        exit 1
 
     - name: Run remote infra apply
       shell: bash
