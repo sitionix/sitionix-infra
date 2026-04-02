@@ -43,6 +43,17 @@ wait_for() {
   return 1
 }
 
+dump_kafka_diagnostics() {
+  echo "Kafka diagnostics: docker ps for sitionix-kafka" >&2
+  docker ps -a --filter name=sitionix-kafka >&2 || true
+
+  echo "Kafka diagnostics: docker inspect state for sitionix-kafka" >&2
+  docker inspect --format '{{json .State}}' sitionix-kafka >&2 || true
+
+  echo "Kafka diagnostics: last 200 lines from sitionix-kafka logs" >&2
+  docker logs --tail 200 sitionix-kafka >&2 || true
+}
+
 for name in \
   SITIONIX_RELEASE_ID \
   SITIONIX_INFRA_RUNTIME_ROOT \
@@ -123,7 +134,11 @@ docker exec -i \
   -e SITES_SOX_DB_PASSWORD="${SITES_SOX_DB_PASSWORD}" \
   -e WAGS_SOX_DB_PASSWORD="${WAGS_SOX_DB_PASSWORD}" \
   sitionix-postgres bash -s < "${current_root}/postgres/init/00-create-app-databases.sh"
-wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list"
+
+if ! wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list"; then
+  dump_kafka_diagnostics
+  exit 1
+fi
 
 (
   cd "${current_root}"
