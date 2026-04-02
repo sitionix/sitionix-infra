@@ -86,9 +86,10 @@ runs:
       run: |
         remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
         remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
+        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
 
-        scp -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"
-        scp -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"
+        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"
+        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"
 
     - name: Run remote infra apply
       shell: bash
@@ -96,8 +97,9 @@ runs:
         remote_root="/tmp/${{ steps.release.outputs.release_id }}"
         remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
         remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
+        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
 
-        ssh -p "${DEPLOY_VM_PORT:-22}" "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}" "
+        ssh "${ssh_options[@]}" -p "${DEPLOY_VM_PORT:-22}" "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}" "
           set -euo pipefail
           cleanup() {
             rm -f '${remote_tarball}' '${remote_secret_env}'
