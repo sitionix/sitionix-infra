@@ -79,30 +79,33 @@ runs:
         install -m 0700 -d ~/.ssh
         printf '%s\n' "$DEPLOY_VM_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
         chmod 0600 ~/.ssh/id_ed25519
+        touch ~/.ssh/known_hosts
+        chmod 0600 ~/.ssh/known_hosts
+
         known_hosts_tmp="$(mktemp)"
-
-        for attempt in $(seq 1 5); do
-          if ssh-keyscan -T 10 -p "${DEPLOY_VM_PORT:-22}" -H "$DEPLOY_VM_HOST" > "${known_hosts_tmp}" 2>/dev/null && [[ -s "${known_hosts_tmp}" ]]; then
-            cat "${known_hosts_tmp}" >> ~/.ssh/known_hosts
-            rm -f "${known_hosts_tmp}"
-            exit 0
-          fi
-          sleep 3
-        done
-
+        if ssh-keyscan -T 10 -p "${DEPLOY_VM_PORT:-22}" -H "$DEPLOY_VM_HOST" > "${known_hosts_tmp}" 2>/dev/null && [[ -s "${known_hosts_tmp}" ]]; then
+          cat "${known_hosts_tmp}" >> ~/.ssh/known_hosts
+        else
+          echo "Warning: unable to prefetch SSH host key for ${DEPLOY_VM_HOST}:${DEPLOY_VM_PORT:-22}; continuing with accept-new." >&2
+        fi
         rm -f "${known_hosts_tmp}"
-        echo "Unable to fetch SSH host key for ${DEPLOY_VM_HOST}:${DEPLOY_VM_PORT:-22}" >&2
-        exit 1
 
     - name: Upload payload to VM
       shell: bash
       run: |
         remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
         remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
-        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
 
-        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"
-        scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"
+        for attempt in $(seq 1 5); do
+          if scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"             && scp "${ssh_options[@]}" -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"; then
+            exit 0
+          fi
+          sleep 3
+        done
+
+        echo "Unable to upload infra payload to ${DEPLOY_VM_HOST}:${DEPLOY_VM_PORT:-22}" >&2
+        exit 1
 
     - name: Run remote infra apply
       shell: bash
@@ -110,7 +113,7 @@ runs:
         remote_root="/tmp/${{ steps.release.outputs.release_id }}"
         remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
         remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
-        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+        ssh_options=(-i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
 
         ssh "${ssh_options[@]}" -p "${DEPLOY_VM_PORT:-22}" "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}" "
           set -euo pipefail
