@@ -115,7 +115,13 @@ fi
 )
 
 wait_for "Postgres readiness" "docker exec sitionix-postgres pg_isready -U postgres -d postgres"
-docker exec sitionix-postgres bash /docker-entrypoint-initdb.d/00-create-app-databases.sh
+docker exec -i \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_DB=postgres \
+  -e AUTHS_SOX_DB_PASSWORD="${AUTHS_SOX_DB_PASSWORD}" \
+  -e SITES_SOX_DB_PASSWORD="${SITES_SOX_DB_PASSWORD}" \
+  -e WAGS_SOX_DB_PASSWORD="${WAGS_SOX_DB_PASSWORD}" \
+  sitionix-postgres bash -s < "${current_root}/postgres/init/00-create-app-databases.sh"
 wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list"
 
 (
