@@ -132,7 +132,8 @@ fi
 
 (
   cd "${current_root}"
-  docker compose --env-file env/infra-compose.env -f docker-compose.infra.yml up -d
+  docker compose --env-file env/infra-compose.env -f docker-compose.infra.yml up -d postgres
+  docker compose --env-file env/infra-compose.env -f docker-compose.infra.yml up -d --force-recreate kafka
 )
 
 wait_for "Postgres readiness" "docker exec sitionix-postgres pg_isready -U postgres -d postgres"
@@ -144,7 +145,7 @@ docker exec -i \
   -e WAGS_SOX_DB_PASSWORD="${WAGS_SOX_DB_PASSWORD}" \
   sitionix-postgres bash -s < "${current_root}/postgres/init/00-create-app-databases.sh"
 
-if ! wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list"; then
+if ! wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list" 40 3 30; then
   dump_kafka_diagnostics
   exit 1
 fi

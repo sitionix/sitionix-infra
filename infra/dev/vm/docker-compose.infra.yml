@@ -46,9 +46,10 @@ services:
       - /opt/sitionix/data/kafka:/var/lib/kafka/data
     healthcheck:
       test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
+      interval: 15s
+      timeout: 30s
+      retries: 12
+      start_period: 120s
     networks:
       sitionix-dev:
         aliases:
