@@ -1,0 +1,43 @@
+name: Dev Infra Deploy On Push
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-infra-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    timeout-minutes: 30
+    env:
+      DEPLOY_VM_PORT: ${{ vars.DEPLOY_VM_PORT }}
+      KAFKA_CLUSTER_ID: ${{ vars.KAFKA_CLUSTER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Execute dev infra deployment
+        uses: ./.github/actions/dev-infra-deploy-run
+        with:
+          github_environment: dev
+        env:
+          DEPLOY_VM_HOST: ${{ secrets.DEPLOY_VM_HOST }}
+          DEPLOY_VM_USER: ${{ secrets.DEPLOY_VM_USER }}
+          DEPLOY_VM_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_VM_SSH_PRIVATE_KEY_DEV_ONLY }}
+          DEPLOY_VM_PORT: ${{ vars.DEPLOY_VM_PORT }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          AUTHS_SOX_DB_PASSWORD: ${{ secrets.AUTHS_SOX_DB_PASSWORD }}
+          SITES_SOX_DB_PASSWORD: ${{ secrets.SITES_SOX_DB_PASSWORD }}
+          WAGS_SOX_DB_PASSWORD: ${{ secrets.WAGS_SOX_DB_PASSWORD }}
+          FORGE_SECURITY_DEV_JWT_SECRET: ${{ secrets.FORGE_SECURITY_DEV_JWT_SECRET }}
+          KAFKA_CLUSTER_ID: ${{ vars.KAFKA_CLUSTER_ID }}

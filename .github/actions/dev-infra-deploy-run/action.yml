@@ -1,0 +1,115 @@
+name: Dev Infra Deploy Run
+description: Run the shared dev VM infra deployment pipeline inside an environment-bound job.
+
+inputs:
+  github_environment:
+    description: GitHub Environment name used to generate the release id.
+    required: true
+
+outputs:
+  release_id:
+    description: Generated infra release id.
+    value: ${{ steps.release.outputs.release_id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate deploy environment contract
+      shell: bash
+      run: |
+        required_secrets=(
+          DEPLOY_VM_HOST
+          DEPLOY_VM_USER
+          DEPLOY_VM_SSH_PRIVATE_KEY
+          POSTGRES_PASSWORD
+          AUTHS_SOX_DB_PASSWORD
+          SITES_SOX_DB_PASSWORD
+          WAGS_SOX_DB_PASSWORD
+          FORGE_SECURITY_DEV_JWT_SECRET
+          KAFKA_CLUSTER_ID
+        )
+
+        for name in "${required_secrets[@]}"; do
+          if [[ -z "${!name:-}" ]]; then
+            echo "Missing required deploy input: ${name}" >&2
+            exit 1
+          fi
+        done
+
+    - name: Prepare infra deployment payload
+      id: release
+      shell: bash
+      run: |
+        short_sha="$(git rev-parse --short HEAD)"
+        release_id="${{ inputs.github_environment }}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${short_sha}"
+
+        payload_root=".deploy/release/payload"
+        mkdir -p "${payload_root}/bin" "${payload_root}/infra"
+
+        cp deploy/dev/vm/apply-infra.sh "${payload_root}/bin/apply-infra.sh"
+        cp -R infra/dev/vm/. "${payload_root}/infra/"
+        chmod +x "${payload_root}/bin/apply-infra.sh"
+
+        cat > "${payload_root}/release.env" <<ENVEOF
+        SITIONIX_RELEASE_ID=${release_id}
+        SITIONIX_INFRA_RUNTIME_ROOT=/opt/sitionix/runtime/infra
+        SITIONIX_SHARED_RUNTIME_ROOT=/opt/sitionix/runtime/shared
+        SITIONIX_INFRA_BACKUP_ROOT=/opt/sitionix/backups/infra
+        SITIONIX_POSTGRES_DATA_ROOT=/opt/sitionix/data/postgres
+        SITIONIX_KAFKA_DATA_ROOT=/opt/sitionix/data/kafka
+        SITIONIX_DOCKER_NETWORK=sitionix-dev
+        SITIONIX_SHARED_INTERNAL_AUTH_ENV_PATH=/opt/sitionix/runtime/shared/dev-internal-auth.env
+        ENVEOF
+
+        secrets_file=".deploy/runtime-secrets.env"
+        : > "${secrets_file}"
+        for name in POSTGRES_PASSWORD AUTHS_SOX_DB_PASSWORD SITES_SOX_DB_PASSWORD WAGS_SOX_DB_PASSWORD KAFKA_CLUSTER_ID FORGE_SECURITY_DEV_JWT_SECRET; do
+          value="${!name}"
+          printf 'export %s=%q\n' "${name}" "${value}" >> "${secrets_file}"
+        done
+        chmod 600 "${secrets_file}"
+
+        tar -C "${payload_root}" -czf .deploy/infra-release.tgz .
+
+        echo "release_id=${release_id}" >> "$GITHUB_OUTPUT"
+
+    - name: Configure SSH
+      shell: bash
+      run: |
+        install -m 0700 -d ~/.ssh
+        printf '%s\n' "$DEPLOY_VM_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+        chmod 0600 ~/.ssh/id_ed25519
+        ssh-keyscan -p "${DEPLOY_VM_PORT:-22}" -H "$DEPLOY_VM_HOST" >> ~/.ssh/known_hosts
+
+    - name: Upload payload to VM
+      shell: bash
+      run: |
+        remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
+        remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
+
+        scp -P "${DEPLOY_VM_PORT:-22}" .deploy/infra-release.tgz "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_tarball}"
+        scp -P "${DEPLOY_VM_PORT:-22}" .deploy/runtime-secrets.env "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}:${remote_secret_env}"
+
+    - name: Run remote infra apply
+      shell: bash
+      run: |
+        remote_root="/tmp/${{ steps.release.outputs.release_id }}"
+        remote_tarball="/tmp/${{ steps.release.outputs.release_id }}.tgz"
+        remote_secret_env="/tmp/${{ steps.release.outputs.release_id }}.env"
+
+        ssh -p "${DEPLOY_VM_PORT:-22}" "${DEPLOY_VM_USER}@${DEPLOY_VM_HOST}" "
+          set -euo pipefail
+          cleanup() {
+            rm -f '${remote_tarball}' '${remote_secret_env}'
+            rm -rf '${remote_root}'
+          }
+          trap cleanup EXIT
+          rm -rf '${remote_root}'
+          mkdir -p '${remote_root}'
+          tar -xzf '${remote_tarball}' -C '${remote_root}'
+          chmod +x '${remote_root}/bin/apply-infra.sh'
+          set -a
+          . '${remote_secret_env}'
+          set +a
+          '${remote_root}/bin/apply-infra.sh'
+        "

@@ -16,3 +16,6 @@
 # Python / Node helpers
 .venv/
 node_modules/
+
+# Local deploy workdir
+.deploy/

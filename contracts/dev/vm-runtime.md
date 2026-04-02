@@ -28,3 +28,9 @@
 
 This file documents the environment-owned runtime topology.
 Service repos must not reassemble this topology through workflow env injection.
+
+## Deploy model
+
+For dev, `develop` in `sitionix-infra` is the source of truth for the shared VM infra state.
+GitHub Actions pushes the bundle to the VM and materializes runtime env files there.
+The VM is not allowed to become the source of truth through local edits or `git` operations.

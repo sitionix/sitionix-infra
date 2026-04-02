@@ -26,6 +26,7 @@ Examples of infra-owned artifacts:
 - environment secret contracts and env templates
 - operator runbooks for infra and environment rollout
 - environment smoke checks that verify service-to-service integration
+- GitHub Actions that push shared infra state to the runtime VM
 
 Examples of service-owned artifacts:
 - application code
@@ -38,6 +39,9 @@ Examples of service-owned artifacts:
 
 ```text
 sitionix-infra/
+├── .github/
+│   ├── actions/
+│   └── workflows/
 ├── contracts/
 │   └── dev/
 ├── deploy/
@@ -63,10 +67,13 @@ The first artifacts moved here are the dev VM shared-infra bundle and the enviro
 - VM infra rollout runbook
 - shared internal service-auth contract
 - dev VM runtime contract summary
+- GitHub Actions workflow and remote apply script for `develop -> dev` infra rollout
 
 ## Current recommendation
 
 For the current VM-based dev stage:
 - shared infra and operator runbooks should live here
 - service repos may temporarily keep service-specific deploy logic
+- `develop` in this repo is the source of truth for the shared dev VM infra state
+- the VM is a runtime target only: no repo clone and no `git pull` on the VM
 - production orchestration should later converge here as the environment source of truth

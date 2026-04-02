@@ -41,14 +41,31 @@ Examples:
 
 Used by CI/CD and never committed.
 
-Examples:
-- VM SSH keys
-- registry pull tokens
-- deployment credentials
+Current dev infra deploy secrets:
+- `DEPLOY_VM_HOST`
+- `DEPLOY_VM_USER`
+- `DEPLOY_VM_SSH_PRIVATE_KEY_DEV_ONLY`
+- `POSTGRES_PASSWORD`
+- `AUTHS_SOX_DB_PASSWORD`
+- `SITES_SOX_DB_PASSWORD`
+- `WAGS_SOX_DB_PASSWORD`
+- `FORGE_SECURITY_DEV_JWT_SECRET`
+
+### GitHub Environment vars
+
+Non-secret environment values used by CI/CD.
+
+Current dev infra deploy vars:
+- `DEPLOY_VM_PORT`
+- `KAFKA_CLUSTER_ID`
 
 ## File model
 
 Infra repo keeps only templates such as:
 - `*.env.example`
 
-Real environment files are created on the VM or injected by CI/CD.
+Real environment files are created on the VM by CI/CD and not committed.
+
+Current dev infra deploy materializes:
+- `/opt/sitionix/runtime/infra/current/env/infra-compose.env`
+- `/opt/sitionix/runtime/shared/dev-internal-auth.env`
