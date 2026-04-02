@@ -54,6 +54,13 @@ dump_kafka_diagnostics() {
   docker logs --tail 200 sitionix-kafka >&2 || true
 }
 
+prepare_kafka_data_root() {
+  docker run --rm \
+    -v "${SITIONIX_KAFKA_DATA_ROOT}:/mnt" \
+    alpine:3.20 \
+    sh -c 'mkdir -p /mnt && chown -R 1000:1000 /mnt && chmod 0775 /mnt'
+}
+
 for name in \
   SITIONIX_RELEASE_ID \
   SITIONIX_INFRA_RUNTIME_ROOT \
@@ -116,6 +123,8 @@ cat > "${shared_secret_path}" <<ENVEOF
 FORGE_SECURITY_DEV_JWT_SECRET=${FORGE_SECURITY_DEV_JWT_SECRET}
 ENVEOF
 umask 022
+
+prepare_kafka_data_root
 
 if ! docker network inspect "${SITIONIX_DOCKER_NETWORK}" >/dev/null 2>&1; then
   docker network create "${SITIONIX_DOCKER_NETWORK}" >/dev/null
