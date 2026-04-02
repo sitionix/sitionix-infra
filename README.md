@@ -77,3 +77,4 @@ For the current VM-based dev stage:
 - `develop` in this repo is the source of truth for the shared dev VM infra state
 - the VM is a runtime target only: no repo clone and no `git pull` on the VM
 - production orchestration should later converge here as the environment source of truth
+ 
