@@ -30,9 +30,10 @@ wait_for() {
   local command="$2"
   local attempts="${3:-30}"
   local sleep_seconds="${4:-2}"
+  local command_timeout_seconds="${5:-10}"
 
   for ((attempt = 1; attempt <= attempts; attempt++)); do
-    if bash -lc "${command}" >/dev/null 2>&1; then
+    if timeout "${command_timeout_seconds}" bash -lc "${command}" >/dev/null 2>&1; then
       return 0
     fi
     sleep "${sleep_seconds}"
