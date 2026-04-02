@@ -87,7 +87,7 @@ The rollout is only successful when both scripts pass on the VM:
 
 Postgres verification proves:
 - `sitionix-postgres` is running
-- `AUTHS_SOX`, `SITES_SOX`, and `WAGS_SOX` exist
+- `auths_sox`, `sites_sox`, and `wags_sox` exist
 - `authssox_app`, `stsssox_app`, and `wagssox_app` can authenticate
 
 Kafka verification proves:

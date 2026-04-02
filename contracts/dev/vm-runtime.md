@@ -19,9 +19,9 @@
 ## Current shared stores
 
 - Postgres databases:
-  - `AUTHS_SOX`
-  - `SITES_SOX`
-  - `WAGS_SOX`
+  - `auths_sox`
+  - `sites_sox`
+  - `wags_sox`
 - Kafka broker: `kafka:9092`
 
 ## Scope
