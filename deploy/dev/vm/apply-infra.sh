@@ -145,7 +145,7 @@ docker exec -i \
   -e WAGS_SOX_DB_PASSWORD="${WAGS_SOX_DB_PASSWORD}" \
   sitionix-postgres bash -s < "${current_root}/postgres/init/00-create-app-databases.sh"
 
-if ! wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list" 40 3 30; then
+if ! wait_for "Kafka readiness" "docker exec sitionix-kafka kafka-topics --bootstrap-server localhost:9092 --list" 12 3 15; then
   dump_kafka_diagnostics
   exit 1
 fi
