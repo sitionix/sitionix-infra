@@ -44,7 +44,7 @@ Used by CI/CD and never committed.
 Current dev infra deploy secrets:
 - `DEPLOY_VM_HOST`
 - `DEPLOY_VM_USER`
-- `DEPLOY_VM_SSH_PRIVATE_KEY_DEV_ONLY`
+- `DEPLOY_VM_SSH_PRIVATE_KEY`
 - `POSTGRES_PASSWORD`
 - `AUTHS_SOX_DB_PASSWORD`
 - `SITES_SOX_DB_PASSWORD`
@@ -69,3 +69,18 @@ Real environment files are created on the VM by CI/CD and not committed.
 Current dev infra deploy materializes:
 - `/opt/sitionix/runtime/infra/current/env/infra-compose.env`
 - `/opt/sitionix/runtime/shared/dev-internal-auth.env`
+
+## Shared build credentials
+
+`sitionix-infra` owns shared templates for private-artifact resolution, but not the real credentials.
+
+Current shared Maven contract:
+- template path: `contracts/shared/maven/settings.xml.template`
+- service repo variable: `MAVEN_REPOSITORY_USERNAME`
+- service repo secret: `SITIONIX_INFRA_READ_TOKEN`
+- service repo secret: `GITHUB_FORGE_IT_MAVEN_TOKEN`
+- service repo secret: `GITHUB_APP_AFESOX_MAVEN_TOKEN`
+- service repo secret: `GITHUB_FORGE_SECURITY_MAVEN_TOKEN`
+- service repo secret: `GITHUB_FORGE_COMMON_MAVEN_TOKEN`
+
+These credentials are not environment-specific for the current model and should not be duplicated as full `settings.xml` blob secrets in each service repo.
