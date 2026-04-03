@@ -77,10 +77,6 @@ Current dev infra deploy materializes:
 Current shared Maven contract:
 - template path: `contracts/shared/maven/settings.xml.template`
 - service repo variable: `MAVEN_REPOSITORY_USERNAME`
-- service repo secret: `SITIONIX_INFRA_READ_TOKEN`
-- service repo secret: `GITHUB_FORGE_IT_MAVEN_TOKEN`
-- service repo secret: `GITHUB_APP_AFESOX_MAVEN_TOKEN`
-- service repo secret: `GITHUB_FORGE_SECURITY_MAVEN_TOKEN`
-- service repo secret: `GITHUB_FORGE_COMMON_MAVEN_TOKEN`
+- service repo secret: `MAVEN_REPOSITORY_TOKEN`
 
 These credentials are not environment-specific for the current model and should not be duplicated as full `settings.xml` blob secrets in each service repo.
