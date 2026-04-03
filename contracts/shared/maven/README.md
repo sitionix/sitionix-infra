@@ -24,21 +24,12 @@ Service repos should:
 ## Runtime placeholders
 
 - `${MAVEN_REPOSITORY_USERNAME}`
-- `${GITHUB_FORGE_IT_MAVEN_TOKEN}`
-- `${GITHUB_APP_AFESOX_MAVEN_TOKEN}`
-- `${GITHUB_FORGE_SECURITY_MAVEN_TOKEN}`
-- `${GITHUB_FORGE_COMMON_MAVEN_TOKEN}`
+- `${MAVEN_REPOSITORY_TOKEN}`
 
 Recommended GitHub contract for service repos:
 - repository variable `MAVEN_REPOSITORY_USERNAME`
-- repository secret `SITIONIX_INFRA_READ_TOKEN`
-- repository secret `GITHUB_FORGE_IT_MAVEN_TOKEN`
-- repository secret `GITHUB_APP_AFESOX_MAVEN_TOKEN`
-- repository secret `GITHUB_FORGE_SECURITY_MAVEN_TOKEN`
-- repository secret `GITHUB_FORGE_COMMON_MAVEN_TOKEN`
+- repository secret `MAVEN_REPOSITORY_TOKEN`
 
 The token must be able to:
 - read private GitHub Packages Maven repositories used by the service
-
-The infra read token must be able to:
 - read this `sitionix-infra` repository if the service workflow checks out the template directly
