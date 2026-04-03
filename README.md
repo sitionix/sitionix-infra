@@ -6,6 +6,7 @@ It owns:
 - environment infrastructure definitions
 - environment-level deployment orchestration
 - shared runtime contracts between services inside an environment
+- shared build contracts used by service CI/CD
 - operator runbooks
 - environment-level smoke and end-to-end verification
 
@@ -24,6 +25,7 @@ Service repos own service concerns.
 Examples of infra-owned artifacts:
 - VM infrastructure compose for shared Postgres and Kafka
 - environment secret contracts and env templates
+- shared Maven settings templates for private artifact resolution
 - operator runbooks for infra and environment rollout
 - environment smoke checks that verify service-to-service integration
 - GitHub Actions that push shared infra state to the runtime VM
