@@ -5,22 +5,22 @@
     <server>
       <id>github-forge-it</id>
       <username>${MAVEN_REPOSITORY_USERNAME}</username>
-      <password>${MAVEN_REPOSITORY_TOKEN}</password>
+      <password>${GITHUB_FORGE_IT_MAVEN_TOKEN}</password>
     </server>
     <server>
       <id>github-app-afesox</id>
       <username>${MAVEN_REPOSITORY_USERNAME}</username>
-      <password>${MAVEN_REPOSITORY_TOKEN}</password>
+      <password>${GITHUB_APP_AFESOX_MAVEN_TOKEN}</password>
     </server>
     <server>
       <id>github-forge-security</id>
       <username>${MAVEN_REPOSITORY_USERNAME}</username>
-      <password>${MAVEN_REPOSITORY_TOKEN}</password>
+      <password>${GITHUB_FORGE_SECURITY_MAVEN_TOKEN}</password>
     </server>
     <server>
       <id>github-forge-common</id>
       <username>${MAVEN_REPOSITORY_USERNAME}</username>
-      <password>${MAVEN_REPOSITORY_TOKEN}</password>
+      <password>${GITHUB_FORGE_COMMON_MAVEN_TOKEN}</password>
     </server>
   </servers>
 </settings>
