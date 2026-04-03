@@ -20,6 +20,9 @@ docker inspect --format '{{.State.Status}}' sitionix-postgres | grep -qx "runnin
 echo "Checking postgres readiness..."
 docker exec sitionix-postgres pg_isready -U postgres -d postgres
 
+echo "Checking VM loopback reachability to 127.0.0.1:5432..."
+bash -lc 'exec 3<>/dev/tcp/127.0.0.1/5432'
+
 echo "Checking databases..."
 for database_name in auths_sox sites_sox wags_sox; do
   docker exec sitionix-postgres psql -U postgres -d postgres -tAc \

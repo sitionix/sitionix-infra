@@ -57,6 +57,13 @@ This rollout does not deploy backend services yet.
 - Kafka data: `/opt/sitionix/data/kafka`
 - infra backup snapshot: `/opt/sitionix/backups/infra/<release-id>`
 
+## Host access contract
+
+- Postgres stays on the shared Docker network as `postgres`
+- Postgres is also bound on the VM loopback only as `127.0.0.1:5432`
+- this loopback bind exists for VM-local administration and SSH-tunneled DB migration tooling
+- Postgres must not be exposed on a public host interface
+
 ## Remote apply flow
 
 1. GitHub Actions checks out the current `develop` commit.
@@ -87,6 +94,7 @@ The rollout is only successful when both scripts pass on the VM:
 
 Postgres verification proves:
 - `sitionix-postgres` is running
+- the VM host can reach Postgres on `127.0.0.1:5432`
 - `auths_sox`, `sites_sox`, and `wags_sox` exist
 - `authssox_app`, `stsssox_app`, and `wagssox_app` can authenticate
 
