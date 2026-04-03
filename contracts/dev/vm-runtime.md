@@ -9,6 +9,12 @@
 - Postgres alias: `postgres`
 - Kafka alias: `kafka`
 
+## Host-loopback access
+
+- Postgres is also published on the VM loopback only: `127.0.0.1:5432`
+- this host binding exists only for VM-local tools and SSH-tunneled DB operations
+- it must not be widened to a public `0.0.0.0` bind
+
 ## Expected service aliases
 
 - `authorisationservice-sox`
