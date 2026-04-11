@@ -37,6 +37,7 @@ jobs:
           DEPLOY_VM_PORT: ${{ vars.DEPLOY_VM_PORT }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           AUTHS_SOX_DB_PASSWORD: ${{ secrets.AUTHS_SOX_DB_PASSWORD }}
+          ATMS_SOX_DB_PASSWORD: ${{ secrets.ATMS_SOX_DB_PASSWORD }}
           SITES_SOX_DB_PASSWORD: ${{ secrets.SITES_SOX_DB_PASSWORD }}
           WAGS_SOX_DB_PASSWORD: ${{ secrets.WAGS_SOX_DB_PASSWORD }}
           FORGE_SECURITY_DEV_JWT_SECRET: ${{ secrets.FORGE_SECURITY_DEV_JWT_SECRET }}

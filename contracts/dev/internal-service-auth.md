@@ -16,6 +16,7 @@ Shared internal service-to-service auth in dev uses one shared secret and commit
 
 - `backendforfrontendservice-sox`
 - `authorisationservice-sox`
+- `automationservice-sox`
 - `siteservice-sox`
 - `workspaceaggregationservice-sox`
 

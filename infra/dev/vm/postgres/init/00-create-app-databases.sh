@@ -36,13 +36,16 @@ SQL
 }
 
 create_role "authssox_app" "${AUTHS_SOX_DB_PASSWORD}"
+create_role "atmssox_app" "${ATMS_SOX_DB_PASSWORD}"
 create_role "stsssox_app" "${SITES_SOX_DB_PASSWORD}"
 create_role "wagssox_app" "${WAGS_SOX_DB_PASSWORD}"
 
 create_database "auths_sox" "authssox_app"
+create_database "atms_sox" "atmssox_app"
 create_database "sites_sox" "stsssox_app"
 create_database "wags_sox" "wagssox_app"
 
 grant_schema_access "auths_sox" "authssox_app"
+grant_schema_access "atms_sox" "atmssox_app"
 grant_schema_access "sites_sox" "stsssox_app"
 grant_schema_access "wags_sox" "wagssox_app"
