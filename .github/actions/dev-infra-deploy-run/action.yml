@@ -23,6 +23,7 @@ runs:
           DEPLOY_VM_SSH_PRIVATE_KEY
           POSTGRES_PASSWORD
           AUTHS_SOX_DB_PASSWORD
+          ATMS_SOX_DB_PASSWORD
           SITES_SOX_DB_PASSWORD
           WAGS_SOX_DB_PASSWORD
           FORGE_SECURITY_DEV_JWT_SECRET
@@ -63,7 +64,7 @@ runs:
 
         secrets_file=".deploy/runtime-secrets.env"
         : > "${secrets_file}"
-        for name in POSTGRES_PASSWORD AUTHS_SOX_DB_PASSWORD SITES_SOX_DB_PASSWORD WAGS_SOX_DB_PASSWORD KAFKA_CLUSTER_ID FORGE_SECURITY_DEV_JWT_SECRET; do
+        for name in POSTGRES_PASSWORD AUTHS_SOX_DB_PASSWORD ATMS_SOX_DB_PASSWORD SITES_SOX_DB_PASSWORD WAGS_SOX_DB_PASSWORD KAFKA_CLUSTER_ID FORGE_SECURITY_DEV_JWT_SECRET; do
           value="${!name}"
           printf 'export %s=%q\n' "${name}" "${value}" >> "${secrets_file}"
         done

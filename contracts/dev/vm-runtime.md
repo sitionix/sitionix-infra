@@ -18,6 +18,7 @@
 ## Expected service aliases
 
 - `authorisationservice-sox`
+- `automationservice-sox`
 - `siteservice-sox`
 - `workspaceaggregationservice-sox`
 - `bffssox-service` may exist as a container name, but shared contracts should prefer stable aliases where possible
@@ -26,6 +27,7 @@
 
 - Postgres databases:
   - `auths_sox`
+  - `atms_sox`
   - `sites_sox`
   - `wags_sox`
 - Kafka broker: `kafka:9092`

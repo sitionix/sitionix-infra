@@ -37,6 +37,7 @@ This rollout does not deploy backend services yet.
 - `DEPLOY_VM_SSH_PRIVATE_KEY`
 - `POSTGRES_PASSWORD`
 - `AUTHS_SOX_DB_PASSWORD`
+- `ATMS_SOX_DB_PASSWORD`
 - `SITES_SOX_DB_PASSWORD`
 - `WAGS_SOX_DB_PASSWORD`
 - `FORGE_SECURITY_DEV_JWT_SECRET`
@@ -95,8 +96,8 @@ The rollout is only successful when both scripts pass on the VM:
 Postgres verification proves:
 - `sitionix-postgres` is running
 - the VM host can reach Postgres on `127.0.0.1:5432`
-- `auths_sox`, `sites_sox`, and `wags_sox` exist
-- `authssox_app`, `stsssox_app`, and `wagssox_app` can authenticate
+- `auths_sox`, `atms_sox`, `sites_sox`, and `wags_sox` exist
+- `authssox_app`, `atmssox_app`, `stsssox_app`, and `wagssox_app` can authenticate
 
 Kafka verification proves:
 - `sitionix-kafka` is running
